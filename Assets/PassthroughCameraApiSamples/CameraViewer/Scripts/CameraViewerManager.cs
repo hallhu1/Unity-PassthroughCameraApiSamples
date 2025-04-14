@@ -25,7 +25,42 @@ namespace PassthroughCameraSamples.CameraViewer
             // Set WebCamTexture GPU texture to the RawImage Ui element
             m_image.texture = m_webCamTextureManager.WebCamTexture;
         }
+        private Texture2D ConvertWebCamTextureToTexture2D(WebCamTexture webCamTexture)
+        {
+            if (webCamTexture == null)
+            {
+                Debug.LogError("ConvertWebCamTextureToTexture2D: webCamTexture is null!");
+                return null;
+            }
+            Texture2D tex2D = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
+            // Copy pixel data from the WebCamTexture into the Texture2D.
+            tex2D.SetPixels(webCamTexture.GetPixels());
+            tex2D.Apply();
+            return tex2D;
+        }
 
-        private void Update() => m_debugText.text = PassthroughCameraPermissions.HasCameraPermission == true ? "Permission granted." : "No permission granted.";
+        public void SaveImageToDisk(Texture2D projectedTexture)
+        {
+            if (projectedTexture != null)
+            {
+                byte[] pngData = projectedTexture.EncodeToPNG();
+                string filePath = "C:/Users/hallhu/SketchGenieUnity/Assets/Scenes/capturedFrame.png";
+                System.IO.File.WriteAllBytes(filePath, pngData);
+                Debug.Log("Saved image to: " + filePath);
+            }
+            else
+            {
+                Debug.LogWarning("No texture to save!");
+            }
+        }
+        private void Update() {
+             m_debugText.text = PassthroughCameraPermissions.HasCameraPermission == true ? "Permission granted." : "No permission granted.";
+             if (Input.GetKeyDown(KeyCode.S))
+            {
+                SaveImageToDisk(ConvertWebCamTextureToTexture2D(m_webCamTextureManager.WebCamTexture));
+            }
+             
+        }
+        
     }
 }
