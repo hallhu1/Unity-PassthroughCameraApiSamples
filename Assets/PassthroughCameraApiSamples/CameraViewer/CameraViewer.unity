@@ -636,6 +636,14 @@ PrefabInstance:
       propertyPath: m_webCamTextureManager
       value: 
       objectReference: {fileID: 1608124433}
+    - target: {fileID: 4300654821384096248, guid: 0e9e59a9b5566489fad35afecaeac3a9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4920789567304922927, guid: 0e9e59a9b5566489fad35afecaeac3a9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5325651034816108330, guid: 0e9e59a9b5566489fad35afecaeac3a9, type: 3}
       propertyPath: m_Name
       value: CameraViewerManagerPrefab
@@ -724,6 +732,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1848740389}
+    - target: {fileID: 7985735940708293872, guid: 0e9e59a9b5566489fad35afecaeac3a9, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

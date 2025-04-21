@@ -44,7 +44,7 @@ namespace PassthroughCameraSamples.CameraViewer
             if (projectedTexture != null)
             {
                 byte[] pngData = projectedTexture.EncodeToPNG();
-                string filePath = "C:/Users/hallhu/SketchGenieUnity/Assets/Scenes/capturedFrame.png";
+                string filePath = "C:/Users/hallhu/SketchGenie/Assets/Scenes/capturedFrame.png";
                 System.IO.File.WriteAllBytes(filePath, pngData);
                 Debug.Log("Saved image to: " + filePath);
             }
