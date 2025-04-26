@@ -15,7 +15,7 @@ public class FrameCapture : MonoBehaviour
         Texture2D frameTexture = ConvertWebCamTextureToTexture2D(m_webCamTextureManager.WebCamTexture);
 
         // debug
-        SaveImageToDisk(frameTexture);
+        // SaveImageToDisk(frameTexture);
 
         Mat frameMat = new Mat(frameTexture.height, frameTexture.width, CvType.CV_8UC3);
         Utils.texture2DToMat(frameTexture, frameMat);

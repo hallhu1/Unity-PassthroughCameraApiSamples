@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.Calib3dModule;
 
 public class EditPaper : MonoBehaviour
 {
     public FrameCapture frameCapture;
-    public ImageProjector projector;
+    // public ImageProjector projector;
     public GameObject paperPlane;
     public Texture2D sourceOutlineTexture;
+    public TextMeshProUGUI m_debugText;
     public int projectedWidth = 1024;
     public int projectedHeight = 1024;
 
@@ -18,15 +20,23 @@ public class EditPaper : MonoBehaviour
     void Start()
     {
         planeRenderer = paperPlane.GetComponent<MeshRenderer>();
+        m_debugText.text = "text is working!!!";
     }
 
     // Update is called once per frame
     void Update()
     {
+        // m_debugText.text = "Update called";
         Mat captured_frame = frameCapture.CaptureFrame();
-
+        // m_debugText.text = "Capture frame completed";
         List<Point> aruco_points = SketchUtils.DetectMarkers(captured_frame);
-        if (aruco_points.Count != 4) return;
+        if (aruco_points.Count != 4){
+            m_debugText.text = "Not Four markers detected\n";
+            return;
+        } 
+        else {
+            m_debugText.text = "Four markers detected\n";
+        }
         // These values are in meters
         var objPts = new MatOfPoint3f(
             new Point3(0.05f, 0.05f, 0), 
@@ -43,11 +53,11 @@ public class EditPaper : MonoBehaviour
 
         Calib3d.solvePnP(objPts, imgPts, intrinsic_mat, distCoeffs, rvec, tvec);
 
-        // 1) Convert rvec → rotation matrix
+        // Convert rvec → rotation matrix
         Mat rotMat = new Mat();
         Calib3d.Rodrigues(rvec, rotMat);
 
-        // 2) Build a Unity Matrix4x4, inserting the CV rotMat
+        // Build a Unity Matrix4x4, inserting the CV rotMat
         var M = Matrix4x4.identity;
         M.m00 = (float)rotMat.get(0,0)[0];
         M.m01 = (float)rotMat.get(0,1)[0];
@@ -59,25 +69,27 @@ public class EditPaper : MonoBehaviour
         M.m21 = (float)rotMat.get(2,1)[0];
         M.m22 = (float)rotMat.get(2,2)[0];
 
-        // 3) Adjust for coord‑system flip (Unity’s Y is up, OpenCV’s is down)
+        // Adjust for coord‑system flip (Unity’s Y is up, OpenCV’s is down)
         var cvToUnity = Matrix4x4.Scale(new Vector3(1, -1, 1)); // TODO: Check these
         M = cvToUnity * M * cvToUnity;
 
-        // 4) Extract Quaternion
+        // Extract Quaternion
         Quaternion poseRot = Quaternion.LookRotation(
             M.GetColumn(2),  // forward
             M.GetColumn(1)); // upward
 
-        // 5) Build Unity position: flip Y from tvec
+        // Build Unity position: flip Y from tvec
         Vector3 posePos = new Vector3(
             (float)tvec.get(0,0)[0],
         -(float)tvec.get(1,0)[0],
             (float)tvec.get(2,0)[0]
         );
 
-        // 6) Apply to your plane
+        // PLane object is a child of the CenterEyeAnchor
         paperPlane.transform.localPosition = posePos;
-        paperPlane.transform.localRotation = poseRot;
+        // paperPlane.transform.localRotation = poseRot;
+
+        m_debugText.text += $"\nPosition: {posePos}\nRotation: {poseRot.eulerAngles}";
 
         if (planeRenderer != null)
         {
