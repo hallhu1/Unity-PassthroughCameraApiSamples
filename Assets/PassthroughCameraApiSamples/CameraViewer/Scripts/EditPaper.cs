@@ -34,7 +34,7 @@ public class EditPaper : MonoBehaviour
             m_debugText.text = "Not Four markers detected\n";
             return;
         } 
-        else {
+        else { // TODO: Fix this I think all four markers are not always being detected
             m_debugText.text = "Four markers detected\n";
         }
         // These values are in meters

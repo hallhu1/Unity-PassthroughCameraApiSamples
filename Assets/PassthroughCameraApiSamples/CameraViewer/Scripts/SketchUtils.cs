@@ -64,8 +64,8 @@ public static class SketchUtils
             Debug.Log("Marker " + current_id + " found");
         }
 
-        if (markerIds.total() == 0) {
-            Debug.Log("No markers found");
+        if (markerIds.total() != 4) {
+            return new List<Point>();
         }
 
         return output_list;
