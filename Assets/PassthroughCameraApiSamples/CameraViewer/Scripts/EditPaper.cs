@@ -21,7 +21,7 @@ public class EditPaper : MonoBehaviour
     void Start()
     {
         planeRenderer = paperPlane.GetComponent<MeshRenderer>();
-        m_debugText.text = "text is working!!!";
+        m_debugText.text = "";
     }
 
     // Update is called once per frame
@@ -31,13 +31,13 @@ public class EditPaper : MonoBehaviour
         Mat captured_frame = frameCapture.CaptureFrame();
         // m_debugText.text = "Capture frame completed";
         List<Point> aruco_points = SketchUtils.DetectMarkers(captured_frame);
-        if (aruco_points.Count != 4){
-            m_debugText.text = "Not Four markers detected\n";
-            return;
-        } 
-        else { // TODO: Fix this I think all four markers are not always being detected
-            m_debugText.text = "Four markers detected\n";
-        }
+        // if (aruco_points.Count != 4){
+        //     m_debugText.text = "Not Four markers detected\n";
+        //     return;
+        // } 
+        // else {
+        //     m_debugText.text = "Four markers detected\n";
+        // }
         // clear or prepend so you don’t endlessly append old data
         // m_debugText.text = "Detected ArUco corners:\n";
 
@@ -130,7 +130,7 @@ public class EditPaper : MonoBehaviour
 
         
 
-        m_debugText.text += $"\nWorld Position: {worldPos}\nWorld Rotation: {worldRot.eulerAngles}";
+        // m_debugText.text += $"\nWorld Position: {worldPos}\nWorld Rotation: {worldRot.eulerAngles}";
 
         if (planeRenderer != null)
         {
