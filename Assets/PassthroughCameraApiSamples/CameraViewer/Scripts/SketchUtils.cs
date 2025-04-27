@@ -39,7 +39,7 @@ public static class SketchUtils
             new Point(0, 0)
         };
 
-
+        // tested that get is correct order
         for (int i = 0; i < markerIds.total(); ++i) {
             double[] idArr = markerIds.get(i, 0);
             int current_id = (int) idArr[0];

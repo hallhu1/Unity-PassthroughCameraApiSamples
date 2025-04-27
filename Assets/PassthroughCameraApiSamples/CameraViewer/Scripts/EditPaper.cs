@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.Calib3dModule;
+using PassthroughCameraSamples;
 
 public class EditPaper : MonoBehaviour
 {
@@ -37,6 +38,20 @@ public class EditPaper : MonoBehaviour
         else { // TODO: Fix this I think all four markers are not always being detected
             m_debugText.text = "Four markers detected\n";
         }
+        // clear or prepend so you don’t endlessly append old data
+        m_debugText.text = "Detected ArUco corners:\n";
+
+        for (int i = 0; i < aruco_points.Count; i++)
+        {
+            Point p = aruco_points[i];
+            m_debugText.text += $"  Corner {i}: x={p.x:F2}, y={p.y:F2}\n";
+        }
+
+        // paper world scale
+        Vector3 worldScale = paperPlane.transform.lossyScale;
+        float paperLength = worldScale.x;
+        // float paperHeight = worldScale.y;
+
         // These values are in meters
         var objPts = new MatOfPoint3f(
             new Point3(0.05f, 0.05f, 0), 
@@ -44,14 +59,22 @@ public class EditPaper : MonoBehaviour
             new Point3(0.1659f, 0.1659f, 0), 
             new Point3(0.05f, 0.1659f, 0)
         );
+        // var objPts = new MatOfPoint3f(
+        //     new Point3(-paperLength/2, paperLength/2, 0), 
+        //     new Point3(paperLength/2, paperLength/2, 0), 
+        //     new Point3(paperLength/2, -paperLength/2, 0), 
+        //     new Point3(-paperLength/2, -paperLength/2, 0) 
+        // );
         var imgPts = new MatOfPoint2f(aruco_points.ToArray());
 
         Mat intrinsic_mat = frameCapture.GetIntrinsicMat();
-        MatOfDouble distCoeffs = new MatOfDouble(new double[]{ 0, 0, 0, 0, 0 });  // TODO: Check for a dist_coeffs
+        // Passthrough API supposedly undistorts original feed
+        MatOfDouble distCoeffs = new MatOfDouble(new double[]{ 0, 0, 0, 0, 0 });
 
         Mat rvec = new Mat(), tvec = new Mat();
 
-        Calib3d.solvePnP(objPts, imgPts, intrinsic_mat, distCoeffs, rvec, tvec);
+        Calib3d.solvePnP(objPts, imgPts, intrinsic_mat, distCoeffs, rvec, tvec/*, false, Calib3d.SOLVEPNP_IPPE_SQUARE*/);
+        // solvePnp gives object to camera
 
         // Convert rvec → rotation matrix
         Mat rotMat = new Mat();
@@ -72,7 +95,6 @@ public class EditPaper : MonoBehaviour
         // Adjust for coord‑system flip (Unity’s Y is up, OpenCV’s is down)
         var cvToUnity = Matrix4x4.Scale(new Vector3(1, -1, 1)); // TODO: Check these
         M = cvToUnity * M * cvToUnity;
-
         // Extract Quaternion
         Quaternion poseRot = Quaternion.LookRotation(
             M.GetColumn(2),  // forward
@@ -85,11 +107,28 @@ public class EditPaper : MonoBehaviour
             (float)tvec.get(2,0)[0]
         );
 
-        // PLane object is a child of the CenterEyeAnchor
-        paperPlane.transform.localPosition = posePos;
-        // paperPlane.transform.localRotation = poseRot;
+        // Rely on left eye pose to change position
+        Pose leftEyePose = PassthroughCameraUtils.GetCameraPoseInWorld(PassthroughCameraEye.Left);
 
-        m_debugText.text += $"\nPosition: {posePos}\nRotation: {poseRot.eulerAngles}";
+        // compute world position: start at the eye, then offset by your tvec (rotated into world)
+        Vector3 worldPos = leftEyePose.position + leftEyePose.rotation * posePos;
+
+        // compute world rotation: first the eye’s world rotation, then your marker orientation
+        Quaternion worldRot = leftEyePose.rotation * poseRot;
+
+        // manual offset for paper
+        // Vector3 centerOffset = new Vector3( paperLength/2f, 0, paperLength/2f );
+        // worldPos += worldRot * centerOffset;
+
+
+
+        // finally, set the paperPlane in world coordinates
+        paperPlane.transform.position = worldPos;
+        // paperPlane.transform.rotation = worldRot; // TODOOO: UNCOMMMEMNTNTN THISS!!!!!!!!!!!!!!!!!!!!!!!
+
+        
+
+        m_debugText.text += $"\nWorld Position: {worldPos}\nWorld Rotation: {worldRot.eulerAngles}";
 
         if (planeRenderer != null)
         {

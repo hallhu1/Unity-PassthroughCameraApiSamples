@@ -6,6 +6,7 @@ using OpenCVForUnity.UnityUtils;
 using PassthroughCameraSamples;
 
 
+
 public class FrameCapture : MonoBehaviour
 {
     public WebCamTextureManager m_webCamTextureManager;
@@ -54,26 +55,6 @@ public class FrameCapture : MonoBehaviour
 
         return camMatrix;
     }
-
-    // public static Mat GetDistortionMat() {
-    //     // after you’ve called EnsureInitialized() internally to populate the camera‑manager…
-    //     var cameraId  = PassthroughCameraUtils.GetCameraIdByEye(PassthroughCameraEye.Left);
-    //     var characteristics = s_cameraManager.Call<AndroidJavaObject>("getCameraCharacteristics", cameraId);
-
-    //     // fetch radial (deprecated) or distortion array (API 31+)
-    //     float[] distArray = characteristics.Call<float[]>("get",
-    //         characteristics.GetStatic<AndroidJavaObject>("LENS_DISTORTION")); 
-    //     // fallback if that’s null:
-    //     if (distArray == null)
-    //         distArray = characteristics.Call<float[]>("get",
-    //             characteristics.GetStatic<AndroidJavaObject>("LENS_RADIAL_DISTORTION"));
-
-    //     // pack into a 1×N Mat
-    //     Mat distCoeffs = new Mat(1, distArray.Length, CvType.CV_32F);
-    //     distCoeffs.put(0, 0, distArray);
-
-    //     return distCoeffs;
-    // }
 
     private Texture2D ConvertWebCamTextureToTexture2D(WebCamTexture webCamTexture)
         {
