@@ -39,13 +39,13 @@ public class EditPaper : MonoBehaviour
             m_debugText.text = "Four markers detected\n";
         }
         // clear or prepend so you don’t endlessly append old data
-        m_debugText.text = "Detected ArUco corners:\n";
+        // m_debugText.text = "Detected ArUco corners:\n";
 
-        for (int i = 0; i < aruco_points.Count; i++)
-        {
-            Point p = aruco_points[i];
-            m_debugText.text += $"  Corner {i}: x={p.x:F2}, y={p.y:F2}\n";
-        }
+        // for (int i = 0; i < aruco_points.Count; i++)
+        // {
+        //     Point p = aruco_points[i];
+        //     m_debugText.text += $"  Corner {i}: x={p.x:F2}, y={p.y:F2}\n";
+        // }
 
         // paper world scale
         Vector3 worldScale = paperPlane.transform.lossyScale;
@@ -115,16 +115,18 @@ public class EditPaper : MonoBehaviour
 
         // compute world rotation: first the eye’s world rotation, then your marker orientation
         Quaternion worldRot = leftEyePose.rotation * poseRot;
+        worldRot = worldRot * Quaternion.Euler(-90f, 0f, 0f); // account for plane rotation frame
+        
 
         // manual offset for paper
-        // Vector3 centerOffset = new Vector3( paperLength/2f, 0, paperLength/2f );
-        // worldPos += worldRot * centerOffset;
+        Vector3 centerOffset = new Vector3( 0.11f, 0, -0.11f );
+        worldPos += worldRot * centerOffset;
 
-
+        worldRot = worldRot * Quaternion.Euler(0f, 180f, 0f);
 
         // finally, set the paperPlane in world coordinates
         paperPlane.transform.position = worldPos;
-        // paperPlane.transform.rotation = worldRot; // TODOOO: UNCOMMMEMNTNTN THISS!!!!!!!!!!!!!!!!!!!!!!!
+        paperPlane.transform.rotation = worldRot;
 
         
 
